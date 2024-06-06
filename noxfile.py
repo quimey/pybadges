@@ -47,7 +47,7 @@ def unit(session):
         'Jinja2==3.0.0',
         'Pillow==10.1',  # Oldest version that supports Python 3.12.
         'requests==2.32.3',  # Oldest version that supports Python 3.12
-        'xmldiff==2.4'
+        'xmldiff==2.6' # Oldest version that supports Python 3.12
     ])
 def compatibility(session, install):
     """Run the unit test suite with each support library and Python version."""
