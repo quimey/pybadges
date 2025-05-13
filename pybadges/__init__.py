@@ -30,7 +30,14 @@ gh-badges library
 """
 
 import base64
-import imghdr
+
+try:
+    import imghdr
+    IMGHDR = True
+except ImportError:
+    # deprecated in python3.13
+    IMGHDR = False
+
 import mimetypes
 from typing import Optional
 import urllib.parse
@@ -102,16 +109,19 @@ def _embed_image(url: str) -> str:
     else:
         with open(url, 'rb') as f:
             image_data = f.read()
-        image_type = imghdr.what(None, image_data)
-        if not image_type:
-            mime_type, _ = mimetypes.guess_type(url, strict=False)
-            if not mime_type:
-                raise ValueError('not able to determine file type')
-            else:
-                content_type, image_type = mime_type.split('/')
-                if content_type != 'image':
-                    raise ValueError('expected an image, got "{0}"'.format(
-                        content_type or 'unknown'))
+        if IMGHDR:
+            image_type = imghdr.what(None, image_data)
+            if not image_type:
+                mime_type, _ = mimetypes.guess_type(url, strict=False)
+                if not mime_type:
+                    raise ValueError('not able to determine file type')
+                else:
+                    content_type, image_type = mime_type.split('/')
+                    if content_type != 'image':
+                        raise ValueError('expected an image, got "{0}"'.format(
+                            content_type or 'unknown'))
+        else:
+            raise NotImplementedError('Package imghdr missing')
 
     encoded_image = base64.b64encode(image_data).decode('ascii')
     return 'data:image/{};base64,{}'.format(image_type, encoded_image)
